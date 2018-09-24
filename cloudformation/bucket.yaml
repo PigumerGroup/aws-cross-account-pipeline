@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  BucketName:
+    Type: String
+  CodeCommitRoleName:
+    Type: String
+  DevelopAccount:
+    Type: String
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+        - Action: s3:*
+          Effect: Allow
+          Resource:
+          - !Sub arn:aws:s3:::${BucketName}
+          - !Sub arn:aws:s3:::${BucketName}/*
+          Principal:
+            Service:
+            - codebuild.amazonaws.com
+            AWS:
+            - !Sub arn:aws:iam::${DevelopAccount}:role/${CodeCommitRoleName}

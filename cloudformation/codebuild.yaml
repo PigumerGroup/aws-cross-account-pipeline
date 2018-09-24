@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  CacheLocation:
+    Type: String
+  CodeBuildRoleName:
+    Type: String
+  Image:
+    Type: String
+  Name:
+    Type: String
+  KeyId:
+    Type: String
+Resources:
+  CodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Location: !Sub ${CacheLocation}/ivy2
+        Type: S3
+      Description: !Ref Name
+      EncryptionKey: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${KeyId}
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Ref Image
+        EnvironmentVariables:
+        - Name: BUCKET_NAME
+          Value: !Ref CacheLocation
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+      Name: !Ref Name
+      ServiceRole: !Sub arn:aws:iam::${AWS::AccountId}:role/${CodeBuildRoleName}
+      Source:
+        Type: CODEPIPELINE
